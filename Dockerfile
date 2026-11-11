@@ -1,0 +1,25 @@
+# ---- build ----
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY prisma ./prisma
+RUN npx prisma generate
+COPY tsconfig.json nest-cli.json ./
+COPY src ./src
+RUN npm run build && npm prune --omit=dev
+
+# ---- runtime ----
+FROM node:22-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+RUN apk add --no-cache openssl
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/prisma ./prisma
+COPY package.json docker-entrypoint.sh ./
+USER node
+EXPOSE 3000
+HEALTHCHECK --interval=10s --timeout=3s --start-period=20s CMD wget -qO- http://localhost:${PORT:-3000}/health || exit 1
+# Migrations and seed run on every start: the database is always prepared and filled automatically.
+ENTRYPOINT ["sh", "./docker-entrypoint.sh"]

@@ -1,0 +1,129 @@
+// Digital business card data model.
+// Profile is the aggregate root; every other entity belongs to a profile,
+// so one database can hold several cards (e.g. per language) without changes.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LinkKind {
+  GITHUB
+  LINKEDIN
+  TELEGRAM
+  WEBSITE
+  EMAIL
+  OTHER
+}
+
+enum SkillCategory {
+  LANGUAGE
+  FRAMEWORK
+  STATE_AND_DATA
+  STYLING
+  TESTING
+  BACKEND
+  DEVOPS
+  AI
+}
+
+model Profile {
+  id          Int            @id @default(autoincrement())
+  slug        String         @unique
+  name        String
+  headline    String
+  description String
+  location    String
+  links       ProfileLink[]
+  skills      ProfileSkill[]
+  experience  Experience[]
+  projects    Project[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ProfileLink {
+  id        Int      @id @default(autoincrement())
+  profileId Int
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  kind      LinkKind
+  label     String
+  url       String
+  position  Int
+
+  @@index([profileId, position])
+}
+
+// Skills are a shared dictionary: the same skill is linked to the profile
+// and to the stack of each job, so "React" exists exactly once.
+model Skill {
+  id         Int               @id @default(autoincrement())
+  name       String            @unique
+  category   SkillCategory
+  profiles   ProfileSkill[]
+  experience ExperienceSkill[]
+}
+
+model ProfileSkill {
+  profileId Int
+  skillId   Int
+  position  Int
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  skill     Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, skillId])
+  @@index([profileId, position])
+}
+
+model Experience {
+  id           Int               @id @default(autoincrement())
+  profileId    Int
+  profile      Profile           @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  company      String
+  position     String
+  context      String
+  startDate    DateTime          @db.Date
+  endDate      DateTime?         @db.Date
+  achievements Achievement[]
+  stack        ExperienceSkill[]
+
+  @@index([profileId, startDate])
+}
+
+model Achievement {
+  id           Int        @id @default(autoincrement())
+  experienceId Int
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  text         String
+  position     Int
+
+  @@index([experienceId, position])
+}
+
+model ExperienceSkill {
+  experienceId Int
+  skillId      Int
+  position     Int
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  skill        Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([experienceId, skillId])
+  @@index([experienceId, position])
+}
+
+model Project {
+  id          Int     @id @default(autoincrement())
+  profileId   Int
+  profile     Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  url         String?
+  repoUrl     String?
+  position    Int
+
+  @@index([profileId, position])
+}

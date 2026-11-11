@@ -1,0 +1,94 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Experience {
+  """What was done and what it gave the business"""
+  achievements: [String!]!
+  company: String!
+
+  """Product, domain and team in one line"""
+  context: String!
+
+  """Length of the period in whole months, both months inclusive"""
+  durationMonths: Int!
+
+  """End month, YYYY-MM; null while the job is current"""
+  endDate: String
+  id: Int!
+  isCurrent: Boolean!
+  position: String!
+  stack: [Skill!]!
+
+  """Start month, YYYY-MM"""
+  startDate: String!
+}
+
+enum LinkKind {
+  EMAIL
+  GITHUB
+  LINKEDIN
+  OTHER
+  TELEGRAM
+  WEBSITE
+}
+
+type Profile {
+  description: String!
+
+  """Work history, most recent first"""
+  experience: [Experience!]!
+  headline: String!
+  id: Int!
+
+  """GitHub, LinkedIn and other professional resources"""
+  links: [ProfileLink!]!
+  location: String!
+  name: String!
+  projects: [Project!]!
+  skills: [Skill!]!
+  slug: String!
+}
+
+type ProfileLink {
+  kind: LinkKind!
+  label: String!
+  url: String!
+}
+
+type Project {
+  description: String!
+  id: Int!
+  name: String!
+
+  """Source code repository"""
+  repoUrl: String
+
+  """Live product URL"""
+  url: String
+}
+
+type Query {
+  """
+  Business card by slug. Without arguments returns the owner of this API.
+  """
+  profile(slug: String! = "aleksandr-shot"): Profile!
+  profiles: [Profile!]!
+}
+
+type Skill {
+  category: SkillCategory!
+  id: Int!
+  name: String!
+}
+
+enum SkillCategory {
+  AI
+  BACKEND
+  DEVOPS
+  FRAMEWORK
+  LANGUAGE
+  STATE_AND_DATA
+  STYLING
+  TESTING
+}

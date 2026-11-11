@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: card
+          POSTGRES_PASSWORD: card
+          POSTGRES_DB: card
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U card -d card"
+          --health-interval 2s --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql://card:card@localhost:5432/card?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run lint
+      - run: npm test
+      - run: npx prisma migrate deploy
+      - run: npm run test:e2e
+      - run: docker build -t profile-card-graphql .
