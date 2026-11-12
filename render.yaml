@@ -1,0 +1,19 @@
+# Render Blueprint: PostgreSQL + the API built from the Dockerfile.
+# The container applies migrations and seeds the database on start.
+databases:
+  - name: profile-card-db
+    plan: free
+    databaseName: card
+    user: card
+
+services:
+  - type: web
+    name: profile-card-graphql
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: profile-card-db
+          property: connectionString

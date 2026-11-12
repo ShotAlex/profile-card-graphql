@@ -141,5 +141,6 @@ build on every push.
 
 ## Deploy
 
-Any platform that runs a Dockerfile works (Render, Railway, Fly.io). Set `DATABASE_URL` to a PostgreSQL
-instance; the container migrates and seeds it on start.
+Deployed on Render from `render.yaml` (Blueprint: PostgreSQL + Docker web service). Any platform that
+runs a Dockerfile works the same way: set `DATABASE_URL`, and the container migrates and seeds the
+database on start.
