@@ -4,7 +4,8 @@ Digital business card of **Aleksandr Shot** — a GraphQL API that tells about m
 
 Stack: **TypeScript · Node.js · NestJS · Prisma · PostgreSQL · GraphQL (Apollo Server) · Docker · Git**.
 
-- Apollo Sandbox: open `/graphql` in a browser (deployed URL or `http://localhost:3000/graphql`)
+- **Live Apollo Sandbox: https://profile-card-graphql-production.up.railway.app/graphql**
+- Locally: `http://localhost:3000/graphql`
 - Health check: `GET /health`
 
 ## Run
@@ -141,6 +142,6 @@ build on every push.
 
 ## Deploy
 
-Deployed on Render from `render.yaml` (Blueprint: PostgreSQL + Docker web service). Any platform that
-runs a Dockerfile works the same way: set `DATABASE_URL`, and the container migrates and seeds the
-database on start.
+Deployed on Railway: PostgreSQL + a service built from the Dockerfile, `DATABASE_URL` points to the
+database. `render.yaml` describes the same setup for Render. Any platform that runs a Dockerfile works the
+same way: set `DATABASE_URL`, and the container migrates and seeds the database on start.
